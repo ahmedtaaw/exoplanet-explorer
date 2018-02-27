@@ -32,7 +32,12 @@ Instructions:
    * @param  {String} url - The URL to fetch.
    * @return {Promise}    - A Promise that resolves when the XHR succeeds and fails otherwise.
    */
+  
   function get(url) {
+
+    //fetch api
+   
+
     /*
     This code needs to get wrapped in a Promise!
      */
@@ -65,6 +70,19 @@ Instructions:
     return promise;
   }
 
+  function getJSON(response){
+    return response.json();
+  }
+  function checkStatus(response){
+    if( response.status===200){
+      return Promise.resolve(response);
+    }else{
+      return Promise.reject(
+        new Error(response.statusText)
+      )
+    }
+  }
+
   window.addEventListener('WebComponentsReady', function() {
     home = document.querySelector('section[data-route="home"]');
     /*
@@ -72,7 +90,7 @@ Instructions:
     You'll need to add a .then and a .catch. Pass the response to addSearchHeader on resolve or
     pass 'unknown' to addSearchHeader if it rejects.
      */
-    get('../data/earth-like-results.json')
+   /* get('../data/earth-like-results.json')
     .then(function(data){
       console.log(data);
       addSearchHeader(data);
@@ -80,6 +98,22 @@ Instructions:
     .catch(function(error){
       addSearchHeader("unknown");
       console.log('Catch: '+err);
+    });*/
+
+    fetch('../data/earth-like-results.json', {
+      method: 'get'
+    })
+    .then(checkStatus)
+    .then(getJSON)
+    .then(function(data) {
+      console.log(data);
+      addSearchHeader(data.query);
+    }).catch(function(err) {
+      // Error :(
+        addSearchHeader("unknown");
+      console.log('Catch: '+err);
     });
+
+
   });
 })(document);
