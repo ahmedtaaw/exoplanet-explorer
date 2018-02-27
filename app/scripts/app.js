@@ -70,50 +70,60 @@ Instructions:
     return promise;
   }
 
-  function getJSON(response){
-    return response.json();
+   /**
+   * XHR wrapped in a promise
+   * @param  {String} url - The URL to fetch.
+   * @return {Promise}    - A Promise that resolves when the XHR succeeds and fails otherwise.
+   */
+  function get(url) {
+    return fetch(url, {
+      method: 'get'
+    });
   }
-  function checkStatus(response){
-    if( response.status===200){
-      return Promise.resolve(response);
-    }else{
-      return Promise.reject(
-        new Error(response.statusText)
-      )
+  
+  
+  /**
+   * Performs an XHR for a JSON and returns a parsed JSON response.
+   * @param  {String} url - The JSON URL to fetch.
+   * @return {Promise}    - A promise that passes the parsed JSON response.
+   */
+  function getJSON(url) {
+    return get(url).then(function(response) {
+      return response.json();
+    });
+  }
+/**
+   * Helper function to create a planet thumbnail.
+   * @param  {Object} data - The raw data describing the planet.
+   */
+  function createPlanetThumb(data) {
+    var pT = document.createElement('planet-thumb');
+    for (var d in data) {
+      pT[d] = data[d];
     }
+    home.appendChild(pT);
   }
 
   window.addEventListener('WebComponentsReady', function() {
     home = document.querySelector('section[data-route="home"]');
     /*
-    Uncomment the next line you're ready to start chaining and testing!
-    You'll need to add a .then and a .catch. Pass the response to addSearchHeader on resolve or
-    pass 'unknown' to addSearchHeader if it rejects.
+    Uncomment the next line and start here when you're ready to add the first thumbnail!
+    Your code goes here!
      */
-   /* get('../data/earth-like-results.json')
+    getJSON('../data/earth-like-results.json')
     .then(function(data){
       console.log(data);
-      addSearchHeader(data);
-    })
-    .catch(function(error){
-      addSearchHeader("unknown");
-      console.log('Catch: '+err);
-    });*/
-
-    fetch('../data/earth-like-results.json', {
-      method: 'get'
-    })
-    .then(checkStatus)
-    .then(getJSON)
-    .then(function(data) {
-      console.log(data);
       addSearchHeader(data.query);
-    }).catch(function(err) {
-      // Error :(
-        addSearchHeader("unknown");
-      console.log('Catch: '+err);
-    });
-
-
+      return getJSON(data.results[0]);
+    })
+    .catch(function(){
+      throw Error('Search Request Error');
+    })
+    .then(function(p){
+      createPlanetThumb(p);
+    })
+    .catch(function(){
+      addSearchHeader("unknown");
+    })
   });
 })(document);
