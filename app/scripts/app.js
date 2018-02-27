@@ -111,19 +111,10 @@ Instructions:
     Your code goes here!
      */
     getJSON('../data/earth-like-results.json')
-    .then(function(data){
-      console.log(data);
-      addSearchHeader(data.query);
-      return getJSON(data.results[0]);
-    })
-    .catch(function(){
-      throw Error('Search Request Error');
-    })
-    .then(function(p){
-      createPlanetThumb(p);
-    })
-    .catch(function(){
-      addSearchHeader("unknown");
+    .then(function(response){
+      response.results.forEach(function(url){
+        getJSON(url).then(createPlanetThumb);
+      });
     })
   });
 })(document);
