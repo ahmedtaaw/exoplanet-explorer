@@ -112,10 +112,15 @@ Instructions:
      */
     getJSON('../data/earth-like-results.json')
     .then(function(response){
-      
-      response.results.map(function(url){
-        getJSON(url).then(createPlanetThumb);
+      var arrayofPromises=response.results.map(function(url){
+        getJSON(url);
       });
+      return Promise.all(arrayofPromises);
+    })
+    .then(function(arrayofPlanets){
+      arrayofPlanets.forEach(function(planet){
+        createPlanetThumb(planet);
+      })
     })
   });
 })(document);
